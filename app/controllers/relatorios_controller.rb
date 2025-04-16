@@ -1,12 +1,14 @@
 class RelatoriosController < ApplicationController
   def vendas_pdf
-    vendas = Venda.includes(:cliente, venda_itens: :produto)
+    filtro_params = {
+      data_inicio: params[:data_inicio],
+      data_fim: params[:data_fim],
+      cliente_id: params[:cliente_id],
+      produto_id: params[:produto_id]
+    }.compact_blank
 
-    pdf = RelatorioVendasPdfService.new(vendas).generate
+    pdf = RelatorioVendasPdfService.new(filtro_params).gerar
 
-    send_data pdf.render,
-              filename: "relatorio_vendas_#{Time.current.strftime('%Y%m%d_%H%M%S')}.pdf",
-              type: 'application/pdf',
-              disposition: 'inline'
+    send_data pdf, filename: 'relatorio_vendas.pdf', type: 'application/pdf'
   end
 end
