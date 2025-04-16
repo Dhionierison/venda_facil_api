@@ -1,25 +1,25 @@
-  class CriarVendaHandler
-    def self.execute(command)
-      cliente = Cliente.find_by(id: command.cliente_id)
-      return nil unless cliente
+class CriarVendaHandler
+  def self.execute(command)
+    ActiveRecord::Base.transaction do
+      cliente = Cliente.find(command.cliente_id)
+      venda = Venda.create!(cliente: cliente)
 
-      venda = Venda.new(cliente: cliente)
-
-      
-      return nil unless venda.save
-
-      
       command.itens.each do |item|
-        produto = Produto.find_by(id: item[:produto_id])
-        next unless produto
-
-      venda.venda_itens.create!(
-      produto: produto,
-      quantidade: item[:quantidade],
-      preco_unitario: produto.preco,
-  )
+        produto = Produto.find(item[:produto_id])
+        venda.venda_itens.create!(
+          produto: produto,
+          quantidade: item[:quantidade],
+          preco_unitario: produto.preco
+        )
       end
 
       venda
     end
+  rescue ActiveRecord::RecordNotFound => e
+    Rails.logger.error "Registro não encontrado: #{e.message}"
+    nil
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.error "Erro de validação: #{e.message}"
+    nil
   end
+end

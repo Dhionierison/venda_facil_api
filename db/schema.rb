@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_14_214609) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_15_233557) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,12 +40,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_14_214609) do
     t.index ["fornecedor_id"], name: "index_produtos_on_fornecedor_id"
   end
 
-  create_table "produtos_vendas", id: false, force: :cascade do |t|
-    t.bigint "produto_id", null: false
+  create_table "venda_itens", force: :cascade do |t|
     t.bigint "venda_id", null: false
+    t.bigint "produto_id", null: false
     t.integer "quantidade"
     t.decimal "preco_unitario", precision: 10, scale: 2
-    t.index ["produto_id", "venda_id"], name: "index_produtos_vendas_on_produto_id_and_venda_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["produto_id"], name: "index_venda_itens_on_produto_id"
+    t.index ["venda_id"], name: "index_venda_itens_on_venda_id"
   end
 
   create_table "vendas", force: :cascade do |t|
@@ -58,5 +61,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_14_214609) do
   end
 
   add_foreign_key "produtos", "fornecedores"
+  add_foreign_key "venda_itens", "produtos"
+  add_foreign_key "venda_itens", "vendas"
   add_foreign_key "vendas", "clientes"
 end

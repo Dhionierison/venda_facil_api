@@ -4,8 +4,10 @@ one:
   venda: one
   produto: one
   quantidade: 1
+  preco_unitario: 9.99
 
 two:
   venda: two
   produto: two
   quantidade: 1
+  preco_unitario: 9.99
