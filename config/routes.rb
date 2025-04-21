@@ -12,4 +12,5 @@ Rails.application.routes.draw do
   # Rotas de relatórios sem namespace
   get 'relatorios/vendas_pdf', to: 'relatorios#vendas_pdf'
   get 'relatorios/vendas_por_periodo', to: 'relatorios#por_periodo'
+  get 'relatorios/vendas_json', to: 'relatorios#vendas_json'
 end
