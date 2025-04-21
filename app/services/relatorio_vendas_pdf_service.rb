@@ -4,8 +4,27 @@ class RelatorioVendasPdfService
   end
 
   def gerar
-    vendas = buscar_vendas
+    vendas = Venda.includes(:cliente, venda_itens: :produto).where(nil)
 
+    vendas = vendas.where(cliente_id: @filtros[:cliente_id]) if @filtros[:cliente_id].present?
+
+    if @filtros[:data_inicio].present? && @filtros[:data_fim].present?
+      inicio = Date.parse(@filtros[:data_inicio]) rescue nil
+      fim = Date.parse(@filtros[:data_fim]) rescue nil
+      vendas = vendas.where(created_at: inicio.beginning_of_day..fim.end_of_day) if inicio && fim
+    end
+
+    # Filtro por produto
+    if @filtros[:produto_id].present?
+      vendas = vendas.joins(:venda_itens).where(venda_itens: { produto_id: @filtros[:produto_id] }).distinct
+    end
+
+    gerar_pdf(vendas)
+  end
+
+  private
+
+  def gerar_pdf(vendas)
     Prawn::Document.new(page_size: 'A4', page_layout: :landscape) do |pdf|
       pdf.text "Relatório de Vendas", size: 20, style: :bold
       pdf.move_down 20
@@ -42,26 +61,6 @@ class RelatorioVendasPdfService
         pdf.move_down 20
       end
     end.render
-  end
-
-  private
-
-  def buscar_vendas
-    vendas = Venda.includes(:cliente, venda_itens: :produto)
-
-    vendas = vendas.where(cliente_id: @filtros[:cliente_id]) if @filtros[:cliente_id].present?
-
-    if @filtros[:data_inicio].present? && @filtros[:data_fim].present?
-      inicio = Date.parse(@filtros[:data_inicio]) rescue nil
-      fim = Date.parse(@filtros[:data_fim]) rescue nil
-      vendas = vendas.where(created_at: inicio.beginning_of_day..fim.end_of_day) if inicio && fim
-    end
-
-    if @filtros[:produto_id].present?
-      vendas = vendas.joins(:venda_itens).where(venda_itens: { produto_id: @filtros[:produto_id] }).distinct
-    end
-
-    vendas
   end
 
   def format_currency(valor)
