@@ -11,8 +11,8 @@ class ClientesController < ApplicationController
   end
 
   def index
-    query = ListarClientesQuery.new
-    render json: query
+    clientes = ListarClientesQuery.execute
+    render json: clientes
   end
 
   private

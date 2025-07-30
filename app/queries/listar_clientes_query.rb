@@ -1,6 +1,6 @@
 class ListarClientesQuery
   def self.execute
-    Clientes.all
+    Cliente.all
   end
 end
 

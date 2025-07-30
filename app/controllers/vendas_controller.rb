@@ -15,6 +15,38 @@ class VendasController < ApplicationController
     end
   end
 
+  def itens_todos
+    venda_itens = VendaItem.includes(:produto, :venda).all.as_json(
+      include: {
+        produto: { only: [:id, :nome, :preco] },
+        venda: { only: [:id] }
+      },
+      methods: [] # se quiser métodos extras aqui
+    )
+    render json: venda_itens
+  end
+
+
+
+  # Nova ação para listar itens
+   def itens
+    venda = Venda.includes(venda_itens: :produto).find_by(id: params[:id])
+  
+    if venda
+      render json: {
+        venda_id: venda.id,
+        itens: venda.venda_itens.as_json(
+          include: {
+            produto: { only: [:id, :nome, :preco] }
+          },
+          methods: [:valor_total_item] # Agora o método existe
+        )
+      }
+    else
+      render json: { error: "Venda não encontrada" }, status: :not_found
+    end
+  end
+
   private
 
   def venda_params
